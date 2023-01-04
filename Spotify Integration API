@@ -1,0 +1,36 @@
+const clientId = "2a6858c3550c4736b4a53dd1c7e55e53";
+const redirectUri = "https://example.com/callback";
+
+const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=playlist-read-private`;
+
+window.location = authUrl;
+
+const code = getQueryParameter("code");
+
+const tokenUrl = "https://accounts.spotify.com/api/token";
+
+fetch(tokenUrl, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`
+  },
+  body: `grant_type=authorization_code&code=${code}&redirect_uri=${redirectUri}`
+})
+.then(response => response.json())
+.then(({access_token}) => {
+  // Save the access token to use in future API requests
+  localStorage.setItem("access_token", access_token);
+});
+fetch("https://api.spotify.com/v1/me/playlists", {
+  method: "GET",
+  headers: {
+    Authorization: `Bearer ${accessToken}`
+  }
+})
+.then(response => response.json())
+.then(({items}) => {
+  items.forEach(playlist => {
+    console.log(playlist.name);
+  });
+});
